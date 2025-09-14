@@ -1,0 +1,147 @@
+{
+  "id": null,
+  "uid": "spring-boot-demo",
+  "title": "Spring Boot Backend Dashboard",
+  "tags": [
+    "spring-boot",
+    "micrometer",
+    "prometheus"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Requests",
+      "targets": [
+        {
+          "expr": "sum(http_server_requests_seconds_count{uri!=\"/actuator/prometheus\"})",
+          "legendFormat": "Total Requests"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests Count",
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{uri!=\"/actuator/prometheus\"}[1m])",
+          "legendFormat": "{{uri}}"
+        }
+      ],
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 12,
+        "h": 6
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Requests Average Duration (s)",
+      "targets": [
+        {
+          "expr": "sum(http_server_requests_seconds_sum) / sum(http_server_requests_seconds_count)",
+          "legendFormat": "Avg Duration"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 6,
+        "h": 3
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "P99 Requests Duration (s)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{uri!=\"/actuator/prometheus\"}[1m])) by (le, uri))",
+          "legendFormat": "{{uri}}"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 6
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests In Process",
+      "targets": [
+        {
+          "expr": "http_server_requests_seconds_active",
+          "legendFormat": "in-flight"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 6
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests Per Second",
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{uri!=\"/actuator/prometheus\"}[1m])",
+          "legendFormat": "{{uri}}"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 6
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Custom Requests Counter",
+      "targets": [
+        {
+          "expr": "custom_requests_total",
+          "legendFormat": "custom"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 6
+      }
+    },
+    {
+      "type": "logs",
+      "title": "Backend Logs (Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "expr": "{job=\"docker-logs\", container_name=\"backend\"} | json | line_format `{{.log}}`"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 24,
+        "h": 8
+      }
+    }
+  ]
+}
